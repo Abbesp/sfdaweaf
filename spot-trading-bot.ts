@@ -6,6 +6,7 @@
 import { APIConfigManager } from './src/config/api-config';
 import { currencyManager } from './src/config/currency-config';
 import { TelegramService } from './src/services/telegram-service';
+import { UltimateICTSMCStrategy } from './src/strategies/ultimate-ict-smc-strategy';
 // Use Deno's built-in crypto for HMAC
 const createHmac = (algorithm: string, key: string) => {
   return {
@@ -41,27 +42,6 @@ const createHmac = (algorithm: string, key: string) => {
 
 // Declare Deno global for TypeScript
 declare const Deno: any;
-// Temporär strategi medan filen sparas
-class TempStrategy {
-  name = 'Temporär ICT/SMC Strategy';
-  generateSignal(data: any[], index: number) {
-    if (!data || data.length < 10 || index < 9) return null;
-    const currentCandle = data[index];
-    const previousCandle = data[index - 1];
-    const priceChange = (currentCandle.close - previousCandle.close) / previousCandle.close;
-    
-    if (priceChange > 0.002) return { type: 'BUY', confidence: 0.8, ict_score: 8, smc_score: 7, confluence: 0.8 };
-    if (priceChange < -0.002) return { type: 'SELL', confidence: 0.8, ict_score: 8, smc_score: 7, confluence: 0.8 };
-    return null;
-  }
-  validateSignal(signal: any) { return signal && signal.confluence >= 0.7; }
-  calculateStopLoss(price: number, signal: string) { return signal === 'BUY' ? price * 0.985 : price * 1.015; }
-  calculateTakeProfit(price: number, stopLoss: number, signal: string) {
-    const risk = Math.abs(price - stopLoss);
-    return signal === 'BUY' ? price + risk * 3 : price - risk * 3;
-  }
-}
-const UltimateICTSMCStrategy = TempStrategy;
 
 export class SpotTradingBot {
   private isRunning = false;
@@ -99,7 +79,7 @@ export class SpotTradingBot {
       
       console.log('📊 Trading Configuration:');
       console.log('   • Exchange: KuCoin SPOT');
-      console.log('   • Strategy: Ultimate ICT/SMC Strategy (Production Ready)');
+      console.log('   • Strategy: Ultimate ICT/SMC Strategy (FULL VERSION)');
       console.log('   • Trade size: 4 USDT');
       console.log('   • Leverage: 2x (spot trading with margin)');
       console.log('   • Currencies: 10 meme coins');
@@ -260,7 +240,7 @@ export class SpotTradingBot {
                 
                 if (marketData && marketData.length >= 10) {
                   // Use Ultimate ICT/SMC Strategy for signal generation
-                  const signal = this.ultimateICTSMCStrategy.generateSignal(marketData, marketData.length - 1);
+                  const signal = this.ultimateICTSMCStrategy.generateUltimateSignal(marketData, marketData.length - 1);
                   
                   if (signal && this.ultimateICTSMCStrategy.validateSignal(signal) && signal.type !== 'HOLD') {
                     const action = signal.type.toLowerCase();
