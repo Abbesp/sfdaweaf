@@ -1,0 +1,25 @@
+{
+  "name": "trading-bot",
+  "version": "1.0.0",
+  "description": "KuCoin Spot Trading Bot with AI Strategy",
+  "main": "main.ts",
+  "type": "module",
+  "scripts": {
+    "start": "deno run --allow-net --allow-read --allow-env --allow-hrtime main.ts",
+    "dev": "deno run --allow-net --allow-read --allow-env --allow-hrtime --watch main.ts"
+  },
+  "permissions": {
+    "net": ["api.kucoin.com", "api.telegram.org"],
+    "read": true,
+    "env": true,
+    "hrtime": true
+  },
+  "compilerOptions": {
+    "lib": ["deno.ns", "deno.unstable", "dom", "es2022", "webworker"],
+    "allowJs": true,
+    "strict": true
+  },
+  "imports": {
+    "axios": "https://esm.sh/axios@1.6.0"
+  }
+}

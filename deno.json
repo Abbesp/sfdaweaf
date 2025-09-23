@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "start": "deno run --allow-net --allow-read Backtesting/run-backtest.ts",
+    "backtest": "deno run --allow-net --allow-read Backtesting/run-backtest.ts",
+    "multi-crypto": "deno run --allow-net --allow-read Backtesting/multi-crypto-backtest.ts",
+    "test": "deno run --allow-net --allow-read Backtesting/run-backtest.ts"
+  },
+  "imports": {
+    "axios": "https://esm.sh/axios@1.6.0"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  }
+}
