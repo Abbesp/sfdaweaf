@@ -32,15 +32,20 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": []
+    "types": ["node"]
   },
   "include": [
-    "spot-trading-bot-deploy.ts"
+    "**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "src/ai/**/*.ts",
+    "src/trading/**/*.ts",
+    "test-imports.ts",
+    "main-standalone.ts"
   ],
 }
