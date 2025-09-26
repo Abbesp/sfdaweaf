@@ -10,7 +10,7 @@ declare const Request: any;
 declare const Response: any;
 declare const URL: any;
 
-import { SpotTradingBot } from './spot-trading-bot-deploy';
+import { SpotTradingBot } from './spot-trading-bot-deploy.js';
 
 // Global bot instance to prevent multiple instances
 let botInstance: SpotTradingBot | null = null;
