@@ -2,22 +2,13 @@
   "name": "kucoin-trading-bot",
   "version": "1.0.0",
   "description": "KuCoin Spot Trading Bot with Ultra Aggressive Strategy",
-  "main": "main.ts",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "deno run --allow-net --allow-read --allow-env main.ts",
-    "start:compiled": "./dist/spot-trading-bot.exe",
-    "dev": "deno run --allow-net --allow-read --allow-env --watch spot-trading-bot.ts",
-    "build": "deno compile --allow-net --allow-read --allow-env spot-trading-bot.ts --output dist/spot-trading-bot",
-    "build:deploy": "deno compile --allow-net --allow-read --allow-env spot-trading-bot-deploy.ts --output dist/spot-trading-bot-deploy",
-    "build:all": "npm run build && npm run build:deploy",
-    "check": "deno check spot-trading-bot.ts",
-    "fmt": "deno fmt",
-    "lint": "deno lint",
-    "test": "deno test --allow-net --allow-read --allow-env",
-    "clean": "rm -rf dist/",
-    "deploy": "deno run --allow-net --allow-read --allow-env spot-trading-bot-deploy.ts",
-    "deploy:compiled": "./dist/spot-trading-bot-deploy.exe"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build": "echo 'No build step needed'",
+    "test": "echo 'No tests configured'"
   },
   "keywords": [
     "trading",
@@ -25,15 +16,22 @@
     "kucoin",
     "cryptocurrency",
     "spot-trading",
-    "typescript",
-    "deno"
+    "nodejs",
+    "express"
   ],
   "author": "Trading Bot Developer",
   "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
   "engines": {
-    "deno": ">=1.0.0"
+    "node": ">=18.0.0"
   }
 }
 
