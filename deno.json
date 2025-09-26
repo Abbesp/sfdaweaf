@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "start": "deno run --allow-net --allow-read Backtesting/run-backtest.ts",
+    "start": "deno run --allow-net --allow-read --allow-env --allow-hrtime --sloppy-imports main.ts",
     "backtest": "deno run --allow-net --allow-read Backtesting/run-backtest.ts",
     "multi-crypto": "deno run --allow-net --allow-read Backtesting/multi-crypto-backtest.ts",
     "test": "deno run --allow-net --allow-read Backtesting/run-backtest.ts"
