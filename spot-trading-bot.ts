@@ -3,10 +3,10 @@
  * Uses spot trading with margin for leverage
  */
 
-import { APIConfigManager } from './src/config/api-config';
-import { currencyManager } from './src/config/currency-config';
-import { TelegramService } from './src/services/telegram-service';
-import { UltimateICTSMCStrategy } from './src/strategies/ultimate-ict-smc-strategy';
+import { APIConfigManager } from './src/config/api-config.js';
+import { currencyManager } from './src/config/currency-config.js';
+import { TelegramService } from './src/services/telegram-service.js';
+import { UltimateICTSMCStrategy } from './src/strategies/ultimate-ict-smc-strategy.js';
 // Use Deno's built-in crypto for HMAC
 const createHmac = (algorithm: string, key: string) => {
   return {
