@@ -1317,10 +1317,11 @@ const bot = new SpotTradingBot();
 console.log('DEBUG: Bot created');
 
 // Handle graceful shutdown
-Deno.addSignalListener('SIGINT', async () => {
+// Handle graceful shutdown
+process.on('SIGINT', async () => {
   console.log('\n🛑 Received SIGINT, shutting down gracefully...');
   await bot.stop();
-  Deno.exit(0);
+  process.exit(0);
 });
 
 console.log('DEBUG: Starting bot...');
