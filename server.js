@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { SpotTradingBot } from './spot-trading-bot-deploy.js';
+import { SpotTradingBot } from './dist/spot-trading-bot-deploy.js';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -149,3 +149,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Access the bot at: http://localhost:${PORT}`);
 });
+
