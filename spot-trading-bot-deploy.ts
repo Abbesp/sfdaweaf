@@ -852,3 +852,4 @@ export class SpotTradingBot {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
+
