@@ -1,15 +1,18 @@
-FROM denoland/deno:2.5.1
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy all files
-COPY . .
+# Copy package files
+COPY package*.json ./
 
-# Cache dependencies
-RUN deno cache index.ts
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
 
 # Expose port
 EXPOSE 8000
 
 # Start the application
-CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-env", "index.ts"]
+CMD ["npm", "start"]
