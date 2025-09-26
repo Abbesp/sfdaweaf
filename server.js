@@ -74,7 +74,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-app.post('/start', async (req, res) => {
+app.get('/start', async (req, res) => {
   if (isRunning) {
     return res.status(400).send('Bot is already running!');
   }
@@ -97,7 +97,7 @@ app.post('/start', async (req, res) => {
   }
 });
 
-app.post('/stop', async (req, res) => {
+app.get('/stop', async (req, res) => {
   if (!isRunning || !botInstance) {
     return res.status(400).send('Bot is not running!');
   }
@@ -148,5 +148,37 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Trading Bot Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Access the bot at: http://localhost:${PORT}`);
+  // Auto-start the bot on server startup
+  (async () => {
+    try {
+      if (!isRunning) {
+        botInstance = new SpotTradingBot();
+        isRunning = true;
+        botInstance.start().catch((error) => {
+          console.error('Bot error:', error);
+          isRunning = false;
+          botInstance = null;
+        });
+        console.log('🤖 Bot auto-started on server boot');
+      }
+    } catch (error) {
+      console.error('Failed to auto-start bot:', error);
+    }
+  })();
 });
 
+// Graceful shutdown
+async function shutdown() {
+  try {
+    if (isRunning && botInstance) {
+      await botInstance.stop();
+    }
+  } catch (e) {
+    console.error('Error during shutdown:', e);
+  } finally {
+    process.exit(0);
+  }
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
