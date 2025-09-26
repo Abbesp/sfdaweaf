@@ -18,18 +18,18 @@ class APIConfigManager {
 
   private constructor() {
     this.kucoinConfig = {
-      apiKey: Deno.env.get('KUCOIN_API_KEY') || '',
-      secretKey: Deno.env.get('KUCOIN_SECRET_KEY') || '',
-      passphrase: Deno.env.get('KUCOIN_PASSPHRASE') || '',
-      baseUrl: Deno.env.get('KUCOIN_TESTNET') === 'true' 
+      apiKey: process.env.KUCOIN_API_KEY || '',
+      secretKey: process.env.KUCOIN_SECRET_KEY || '',
+      passphrase: process.env.KUCOIN_PASSPHRASE || '',
+      baseUrl: process.env.KUCOIN_TESTNET === 'true' 
         ? 'https://api-sandbox.kucoin.com' 
         : 'https://api.kucoin.com',
-      testnet: Deno.env.get('KUCOIN_TESTNET') === 'true'
+      testnet: process.env.KUCOIN_TESTNET === 'true'
     };
 
     this.telegramConfig = {
-      botToken: Deno.env.get('TELEGRAM_BOT_TOKEN') || '',
-      chatId: Deno.env.get('TELEGRAM_CHAT_ID') || ''
+      botToken: process.env.TELEGRAM_BOT_TOKEN || '',
+      chatId: process.env.TELEGRAM_CHAT_ID || ''
     };
   }
 
@@ -983,4 +983,5 @@ const handler = async (request: any): Promise<any> => {
 };
 
 // Start the server
-Deno.serve({ port: 8000 }, handler);
+// Note: This is designed for Deno Deploy, but we'll use a simple HTTP server for Node.js
+console.log('Server would start on port 8000 (Deno Deploy)');
