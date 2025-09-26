@@ -5,8 +5,8 @@
   "main": "main.ts",
   "type": "module",
   "scripts": {
-    "start": "deno run --allow-net --allow-read --allow-env --allow-hrtime main.ts",
-    "dev": "deno run --allow-net --allow-read --allow-env --allow-hrtime --watch main.ts"
+    "start": "deno run --allow-net --allow-read --allow-env --allow-hrtime --sloppy-imports main.ts",
+    "dev": "deno run --allow-net --allow-read --allow-env --allow-hrtime --sloppy-imports --watch main.ts"
   },
   "permissions": {
     "net": ["api.kucoin.com", "api.telegram.org"],
