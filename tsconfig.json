@@ -35,8 +35,7 @@
     "types": []
   },
   "include": [
-    "**/*.ts",
-    "src/**/*.ts"
+    "spot-trading-bot-deploy.ts"
   ],
   "exclude": [
     "node_modules",
