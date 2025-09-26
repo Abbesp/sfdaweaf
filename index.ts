@@ -4,30 +4,30 @@
  */
 
 // Core Bot
-export { SpotTradingBot } from './TradingBot/spot-trading-bot';
+export { SpotTradingBot } from './spot-trading-bot-deploy';
 
 // Strategies
-export { MasterStrategy } from './TradingBot/src/strategies/master-strategy';
+export { UltimateICTSMCStrategy } from './src/strategies/ultimate-ict-smc-strategy';
 
 // AI Modules
-export { SMCModule } from './TradingBot/src/ai/smc-module';
-export { ICTModule } from './TradingBot/src/ai/ict-module';
-export { MarketStructureModule } from './TradingBot/src/ai/market-structure-module';
+export { SMCModule } from './src/ai/smc-module';
+export { ICTModule } from './src/ai/ict-module';
+export { MarketStructureModule } from './src/ai/market-structure-module';
 
 // Configuration
-export { currencyManager } from './TradingBot/src/config/currency-config';
-export { APIConfigManager } from './TradingBot/src/config/api-config';
+export { currencyManager } from './src/config/currency-config';
+export { APIConfigManager } from './src/config/api-config';
 
 // Types
-export type { CurrencyConfig } from './TradingBot/src/config/currency-config';
-export type { APIConfig } from './TradingBot/src/config/api-config';
+export type { CurrencyConfig } from './src/config/currency-config';
+export type { APIConfig } from './src/config/api-config';
 
 // Import for use in this file
-import { MasterStrategy } from './TradingBot/src/strategies/master-strategy';
-import { currencyManager } from './TradingBot/src/config/currency-config';
-import { APIConfigManager } from './TradingBot/src/config/api-config';
-import type { CurrencyConfig } from './TradingBot/src/config/currency-config';
-import type { APIConfig } from './TradingBot/src/config/api-config';
+import { UltimateICTSMCStrategy } from './src/strategies/ultimate-ict-smc-strategy';
+import { currencyManager } from './src/config/currency-config';
+import { APIConfigManager } from './src/config/api-config';
+import type { CurrencyConfig } from './src/config/currency-config';
+import type { APIConfig } from './src/config/api-config';
 
 // Strategy Types
 export interface BaseStrategy {
@@ -52,7 +52,7 @@ export interface StrategyConfig {
 
 // Strategy Registry
 export const strategies: StrategyConfig = {
-  master: new MasterStrategy(),
+  master: new UltimateICTSMCStrategy(),
 };
 
 // Strategy Manager
@@ -77,8 +77,8 @@ export class StrategyManager {
     return type in strategies;
   }
 
-  static getMasterStrategy(): MasterStrategy {
-    return strategies.master as unknown as MasterStrategy;
+  static getMasterStrategy(): UltimateICTSMCStrategy {
+    return strategies.master as unknown as UltimateICTSMCStrategy;
   }
 }
 
@@ -170,7 +170,7 @@ export class APIManager {
 }
 
 // Main Bot Instance
-import { SpotTradingBot } from './TradingBot/spot-trading-bot';
+import { SpotTradingBot } from './spot-trading-bot-deploy';
 
 export const bot = new SpotTradingBot();
 export const tradingManager = TradingManager.getInstance();
@@ -210,13 +210,13 @@ export const utils = {
 };
 
 // Export everything
-export * from './TradingBot/spot-trading-bot';
-export * from './TradingBot/src/strategies/master-strategy';
-export * from './TradingBot/src/config/currency-config';
-export * from './TradingBot/src/config/api-config';
-export * from './TradingBot/src/ai/smc-module';
-export * from './TradingBot/src/ai/ict-module';
-export * from './TradingBot/src/ai/market-structure-module';
+export * from './spot-trading-bot-deploy';
+export * from './src/strategies/ultimate-ict-smc-strategy';
+export * from './src/config/currency-config';
+export * from './src/config/api-config';
+export * from './src/ai/smc-module';
+export * from './src/ai/ict-module';
+export * from './src/ai/market-structure-module';
 
 // Default export
 export default {
