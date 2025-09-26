@@ -8,7 +8,7 @@ import { createHmac } from 'crypto';
 
 // API Configuration Manager
 class APIConfigManager {
-  static instance = null;
+  static instance: APIConfigManager | null = null;
   
   constructor() {
     this.kucoinConfig = {
@@ -25,22 +25,28 @@ class APIConfigManager {
     };
   }
   
-  static getInstance() {
+  static getInstance(): APIConfigManager {
     if (!APIConfigManager.instance) {
       APIConfigManager.instance = new APIConfigManager();
     }
     return APIConfigManager.instance;
   }
   
-  getKucoinConfig() {
+  getKucoinConfig(): {
+    apiKey: string;
+    secretKey: string;
+    passphrase: string;
+    baseUrl: string;
+    testnet: boolean;
+  } {
     return this.kucoinConfig;
   }
   
-  getTelegramConfig() {
+  getTelegramConfig(): { botToken: string; chatId: string } {
     return this.telegramConfig;
   }
   
-  validateConfig() {
+  validateConfig(): boolean {
     return !!(this.kucoinConfig.apiKey && this.kucoinConfig.secretKey && this.kucoinConfig.passphrase);
   }
 }
@@ -62,24 +68,27 @@ class CurrencyManager {
     ];
   }
   
-  getAllCurrencies() {
+  getAllCurrencies(): Array<{ symbol: string; name: string; category: string; volatility: string }> {
     return this.currencies;
   }
   
-  getCurrency(symbol) {
+  getCurrency(symbol: string) {
     return this.currencies.find(c => c.symbol === symbol);
   }
 }
 
 // Telegram Service
 class TelegramService {
-  constructor(botToken, chatId) {
+  botToken: string;
+  chatId: string;
+  baseUrl: string;
+  constructor(botToken: string, chatId: string) {
     this.botToken = botToken;
     this.chatId = chatId;
     this.baseUrl = `https://api.telegram.org/bot${botToken}`;
   }
   
-  async sendMessage(message) {
+  async sendMessage(message: string): Promise<void> {
     if (!this.botToken || !this.chatId) {
       console.log('Telegram not configured, skipping message');
       return;
@@ -91,12 +100,12 @@ class TelegramService {
         text: message,
         parse_mode: 'HTML'
       });
-    } catch (error) {
-      console.error('Error sending Telegram message:', error.message);
+    } catch (error: unknown) {
+      console.error('Error sending Telegram message:', (error as Error).message);
     }
   }
   
-  async sendStatusUpdate(title, message) {
+  async sendStatusUpdate(title: string, message: string): Promise<void> {
     const fullMessage = `🤖 <b>${title}</b>\n\n${message}`;
     await this.sendMessage(fullMessage);
   }
@@ -107,7 +116,47 @@ const apiConfig = APIConfigManager.getInstance();
 const currencyManager = new CurrencyManager();
 
 // Main Trading Bot Class
+type Position = {
+  side: 'buy' | 'sell';
+  quantity: number;
+  price: number;
+  timestamp: number;
+  orderId: string;
+};
+
+type Candle = { timestamp: number; open: number; high: number; low: number; close: number; volume: number };
+
+type Currency = { symbol: string; name: string; category: string; volatility: string };
+
+type Trade = {
+  id: string;
+  orderId: string;
+  symbol: string;
+  side: 'buy' | 'sell';
+  quantity: number;
+  price: number;
+  leverage: number;
+  riskAmount: number;
+  totalExposure: number;
+  timestamp: number;
+  pnl: number;
+  status: string;
+};
+
 export class SpotTradingBot {
+  isRunning: boolean;
+  loopCount: number;
+  totalTrades: number;
+  totalPnL: number;
+  trades: Trade[];
+  telegramService: TelegramService;
+  positions: Map<string, Position>;
+  minimumOrderSizes: Map<string, number>;
+  tradingHistory: Trade[];
+  tradingInterval: NodeJS.Timeout | null;
+  maxIterations: number;
+  currentIterations: number;
+
   constructor() {
     this.isRunning = false;
     this.loopCount = 0;
@@ -118,8 +167,8 @@ export class SpotTradingBot {
       apiConfig.getTelegramConfig().botToken,
       apiConfig.getTelegramConfig().chatId
     );
-    this.positions = new Map();
-    this.minimumOrderSizes = new Map();
+    this.positions = new Map<string, Position>();
+    this.minimumOrderSizes = new Map<string, number>();
     this.tradingHistory = [];
     this.tradingInterval = null;
     this.maxIterations = 100;
@@ -191,7 +240,7 @@ export class SpotTradingBot {
   /**
    * Single trading iteration - runs every minute
    */
-  async tradingIteration() {
+  async tradingIteration(): Promise<void> {
     if (!this.isRunning) {
       return;
     }
@@ -258,7 +307,7 @@ export class SpotTradingBot {
           // Small delay to prevent overwhelming the API
           await this.sleep(100);
           
-        } catch (error) {
+        } catch (error: unknown) {
           console.error(`   ❌ Error processing ${currency.symbol}:`, error);
         }
       }
@@ -273,7 +322,7 @@ export class SpotTradingBot {
       // Display overall statistics
       await this.displayStats();
 
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Error in trading iteration:', error);
     }
   }
@@ -281,7 +330,7 @@ export class SpotTradingBot {
   /**
    * Process existing position
    */
-  async processExistingPosition(currency, position, latestCandle) {
+  async processExistingPosition(currency: Currency, position: Position, latestCandle: Candle): Promise<boolean> {
     const timeHeld = Date.now() - position.timestamp;
     const priceChangeFromEntry = ((latestCandle.close - position.price) / position.price) * 100;
     
@@ -333,7 +382,7 @@ export class SpotTradingBot {
   /**
    * Process new trade opportunity
    */
-  async processNewTrade(currency, latestCandle, marketData) {
+  async processNewTrade(currency: Currency, latestCandle: Candle, marketData: Candle[]): Promise<boolean> {
     // Check if we can afford to trade
     const canAffordTrade = await this.checkTradingBalance(currency, latestCandle.close);
     
@@ -381,7 +430,7 @@ export class SpotTradingBot {
   /**
    * Check all account balances
    */
-  async checkAllAccountBalances() {
+  async checkAllAccountBalances(): Promise<void> {
     try {
       const kucoinConfig = apiConfig.getKucoinConfig();
       
@@ -417,15 +466,15 @@ export class SpotTradingBot {
           }
         });
       }
-    } catch (error) {
-      console.error('❌ Error checking account balances:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ Error checking account balances:', (error as Error).message);
     }
   }
 
   /**
    * Load existing positions from KuCoin
    */
-  async loadExistingPositions() {
+  async loadExistingPositions(): Promise<void> {
     try {
       console.log('🔄 Loading existing positions from KuCoin...');
       const kucoinConfig = apiConfig.getKucoinConfig();
@@ -482,15 +531,15 @@ export class SpotTradingBot {
       }
       
       console.log(`✅ Loaded ${this.positions.size} existing positions`);
-    } catch (error) {
-      console.error('❌ Error loading existing positions:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ Error loading existing positions:', (error as Error).message);
     }
   }
 
   /**
    * Load minimum order sizes and calculate required USDT values for all currencies
    */
-  async loadMinimumOrderSizes() {
+  async loadMinimumOrderSizes(): Promise<void> {
     try {
       const kucoinConfig = apiConfig.getKucoinConfig();
       const currencies = currencyManager.getAllCurrencies();
@@ -535,7 +584,7 @@ export class SpotTradingBot {
             this.minimumOrderSizes.set(`${currency.symbol}_USDT`, 1);
             console.log(`   ⚠️ ${currency.symbol}: Using default 1 token (~$1 USDT)`);
           }
-        } catch (error) {
+        } catch (error: unknown) {
           // Fallback to default values
           this.minimumOrderSizes.set(currency.symbol, 1);
           this.minimumOrderSizes.set(`${currency.symbol}_USDT`, 1);
@@ -545,8 +594,8 @@ export class SpotTradingBot {
       
       console.log('✅ Minimum order sizes and USDT values loaded');
       
-    } catch (error) {
-      console.error('❌ Error loading minimum order sizes:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ Error loading minimum order sizes:', (error as Error).message);
       // Set default values for all currencies
       const currencies = currencyManager.getAllCurrencies();
       currencies.forEach(currency => {
@@ -559,7 +608,7 @@ export class SpotTradingBot {
   /**
    * Get real market data from KuCoin API
    */
-  async getRealMarketData(symbol) {
+  async getRealMarketData(symbol: string): Promise<Candle[]> {
     try {
       const kucoinConfig = apiConfig.getKucoinConfig();
       
@@ -586,8 +635,8 @@ export class SpotTradingBot {
       
       return [];
       
-    } catch (error) {
-      console.error(`   ❌ Error fetching market data for ${symbol}:`, error.message);
+    } catch (error: unknown) {
+      console.error(`   ❌ Error fetching market data for ${symbol}:`, (error as Error).message);
       return [];
     }
   }
@@ -595,7 +644,7 @@ export class SpotTradingBot {
   /**
    * Create KuCoin signature
    */
-  createKuCoinSignature(method, endpoint, body, timestamp, secretKey, passphrase) {
+  createKuCoinSignature(method: string, endpoint: string, body: string, timestamp: number, secretKey: string, passphrase: string): string {
     const message = timestamp + method + endpoint + body;
     const signature = createHmac('sha256', secretKey).update(message).digest('base64');
     return signature;
@@ -604,7 +653,7 @@ export class SpotTradingBot {
   /**
    * Encrypt passphrase for KuCoin
    */
-  encryptPassphrase(passphrase, secretKey) {
+  encryptPassphrase(passphrase: string, secretKey: string): string {
     const encrypted = createHmac('sha256', secretKey).update(passphrase).digest('base64');
     return encrypted;
   }
@@ -612,7 +661,7 @@ export class SpotTradingBot {
   /**
    * Check if we have sufficient balance to trade
    */
-  async checkTradingBalance(currency, price) {
+  async checkTradingBalance(currency: Currency, price: number): Promise<boolean> {
     try {
       const kucoinConfig = apiConfig.getKucoinConfig();
       
@@ -661,8 +710,8 @@ export class SpotTradingBot {
       }
       
       return false; // Default to false if can't check balance
-    } catch (error) {
-      console.error(`   ❌ Error checking balance:`, error.message);
+    } catch (error: unknown) {
+      console.error(`   ❌ Error checking balance:`, (error as Error).message);
       return false;
     }
   }
@@ -670,7 +719,7 @@ export class SpotTradingBot {
   /**
    * Execute real trade via KuCoin Spot API
    */
-  async executeRealTrade(currency, action, price, leverage, riskAmount) {
+  async executeRealTrade(currency: Currency, action: 'buy' | 'sell', price: number, leverage: number, riskAmount: number): Promise<Trade | null> {
     try {
       const kucoinConfig = apiConfig.getKucoinConfig();
       
@@ -751,8 +800,8 @@ export class SpotTradingBot {
         return null;
       }
       
-    } catch (error) {
-      console.error(`   ❌ Error executing trade:`, error.message);
+    } catch (error: unknown) {
+      console.error(`   ❌ Error executing trade:`, (error as Error).message);
       return null;
     }
   }
@@ -760,7 +809,7 @@ export class SpotTradingBot {
   /**
    * Display trading statistics
    */
-  async displayStats() {
+  async displayStats(): Promise<void> {
     console.log('\n📊 SPOT TRADING STATISTICS:');
     console.log(`   Total Trades: ${this.totalTrades}`);
     console.log(`   Total PnL: $${this.totalPnL.toFixed(4)}`);
@@ -799,7 +848,7 @@ export class SpotTradingBot {
   /**
    * Get current price for a symbol
    */
-  async getCurrentPrice(symbol) {
+  async getCurrentPrice(symbol: string): Promise<number> {
     try {
       const kucoinConfig = apiConfig.getKucoinConfig();
       const endpoint = `/api/v1/market/orderbook/level1?symbol=${symbol}`;
@@ -813,8 +862,8 @@ export class SpotTradingBot {
       if (response.data.code === '200000' && response.data.data) {
         return parseFloat(response.data.data.price);
       }
-    } catch (error) {
-      console.error(`❌ Error getting current price for ${symbol}:`, error.message);
+    } catch (error: unknown) {
+      console.error(`❌ Error getting current price for ${symbol}:`, (error as Error).message);
     }
     
     return 0;
@@ -823,7 +872,7 @@ export class SpotTradingBot {
   /**
    * Stop the bot
    */
-  async stop() {
+  async stop(): Promise<void> {
     console.log('\n🛑 Stopping spot trading bot...');
     this.isRunning = false;
     
@@ -848,8 +897,8 @@ export class SpotTradingBot {
   /**
    * Sleep utility
    */
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  sleep(ms: number): Promise<void> {
+    return new Promise<void>(resolve => setTimeout(resolve, ms));
   }
 }
 
