@@ -2,10 +2,10 @@
   "name": "kucoin-trading-bot",
   "version": "1.0.0",
   "description": "KuCoin Spot Trading Bot with Ultra Aggressive Strategy",
-  "main": "dist/spot-trading-bot.js",
+  "main": "main.ts",
   "type": "module",
   "scripts": {
-    "start": "deno run --allow-net --allow-read --allow-env spot-trading-bot.ts",
+    "start": "deno run --allow-net --allow-read --allow-env --sloppy-imports main.ts",
     "start:compiled": "./dist/spot-trading-bot.exe",
     "dev": "deno run --allow-net --allow-read --allow-env --watch spot-trading-bot.ts",
     "build": "deno compile --allow-net --allow-read --allow-env spot-trading-bot.ts --output dist/spot-trading-bot",
