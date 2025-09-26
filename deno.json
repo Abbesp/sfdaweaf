@@ -1,38 +1,17 @@
 {
-  "name": "kucoin-trading-bot",
-  "version": "1.0.0",
-  "description": "KuCoin Spot Trading Bot with Ultra Aggressive Strategy",
-  "main": "main.ts",
-  "type": "module",
-  "scripts": {
-    "start": "deno run --allow-net --allow-read --allow-env --sloppy-imports main.ts",
-    "start:compiled": "./dist/spot-trading-bot.exe",
-    "dev": "deno run --allow-net --allow-read --allow-env --watch spot-trading-bot.ts",
-    "build": "deno compile --allow-net --allow-read --allow-env spot-trading-bot.ts --output dist/spot-trading-bot",
-    "build:deploy": "deno compile --allow-net --allow-read --allow-env spot-trading-bot-deploy.ts --output dist/spot-trading-bot-deploy",
-    "build:all": "npm run build && npm run build:deploy",
-    "check": "deno check spot-trading-bot.ts",
-    "fmt": "deno fmt",
-    "lint": "deno lint",
-    "test": "deno test --allow-net --allow-read --allow-env",
-    "clean": "rm -rf dist/",
-    "deploy": "deno run --allow-net --allow-read --allow-env spot-trading-bot-deploy.ts",
-    "deploy:compiled": "./dist/spot-trading-bot-deploy.exe"
+  "tasks": {
+    "start": "deno run --allow-net --allow-read --allow-env --allow-hrtime main.ts",
+    "backtest": "deno run --allow-net --allow-read Backtesting/run-backtest.ts",
+    "multi-crypto": "deno run --allow-net --allow-read Backtesting/multi-crypto-backtest.ts",
+    "test": "deno run --allow-net --allow-read Backtesting/run-backtest.ts"
   },
-  "keywords": [
-    "trading",
-    "bot",
-    "kucoin",
-    "cryptocurrency",
-    "spot-trading",
-    "typescript",
-    "deno"
-  ],
-  "author": "Trading Bot Developer",
-  "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {},
-  "engines": {
-    "deno": ">=1.0.0"
+  "imports": {
+    "axios": "https://esm.sh/axios@1.6.0",
+    "./spot-trading-bot-deploy": "./spot-trading-bot-deploy.ts"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
   }
 }
