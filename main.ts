@@ -10,7 +10,7 @@ declare const Request: any;
 declare const Response: any;
 declare const URL: any;
 
-import { SpotTradingBot } from './TradingBot/spot-trading-bot-deploy.ts';
+import { SpotTradingBot } from './spot-trading-bot-deploy.js';
 
 // Global bot instance to prevent multiple instances
 let botInstance: SpotTradingBot | null = null;
@@ -178,4 +178,5 @@ const handler = async (request: any): Promise<any> => {
 
 // Start the server
 Deno.serve({ port: 8000 }, handler);
+
 
