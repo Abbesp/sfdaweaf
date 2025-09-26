@@ -1,4 +1,4 @@
-import { APIConfigManager } from './src/config/api-config';
+import { APIConfigManager } from './src/config/api-config.js';
 
 // Use Deno's built-in crypto for HMAC
 const createHmac = (algorithm: string, key: string) => {
